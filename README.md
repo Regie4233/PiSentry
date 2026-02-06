@@ -8,6 +8,7 @@ A Raspberry Pi-based security camera application that detects motion and capture
 - **Time-Lapse Recording**: Automatically captures a sequence of images when motion is detected.
 - **Configurable Settings**: Adjust motion sensitivity, time-lapse duration, and capture intervals via the web UI.
 - **Hotspot Mode**: Can create a Wi-Fi hotspot for easy access in the field.
+- **Image Compression**: Adjustable JPEG quality settings to optimize storage usage and transfer speeds.
 - **Auto-Start**: Service configuration for automatic startup on boot.
 
 ## Installation
@@ -33,7 +34,7 @@ sudo apt install -y python3-opencv python3-numpy libcamera-tools
 
 2. **Create a Virtual Environment**:
    ```bash
-   python3 -m venv .venv
+   python3 -m venv --system-site-packages .venv
    source .venv/bin/activate
    ```
 
@@ -96,3 +97,36 @@ The application consists of three main components running concurrently:
 
 ### Network Switching (`wifi_switch.sh`)
 On startup, the system uses this script to check for a known Home Wi-Fi network. If unavailable (or if forced via the startup script), it switches the Raspberry Pi's Wi-Fi interface to Hotspot mode, allowing you to connect directly to the Pi's network to view the camera.
+
+## Debugging & Inspection
+
+If you encounter issues with the camera or dependencies, several utility scripts are provided to help diagnose the problem:
+
+### `debug_camera.py`
+**Purpose:** Verifies that the Python environment is set up correctly and that critical libraries are finding their system dependencies.
+**Usage:**
+```bash
+python debug_camera.py
+```
+**Checks:**
+- Python version and executable path.
+- Imports `picamera2` and reports success or failure (common issue with venv).
+- Imports `cv2` (OpenCV) and reports version.
+
+### `inspect_api.py`
+**Purpose:** Inspects the available methods in the `Picamera2` library. This is useful if you suspect a version mismatch or API change (e.g., between Bullseye and Bookworm OS versions).
+**Usage:**
+```bash
+python inspect_api.py
+```
+**Output:** Lists available methods on the `Picamera2` class and instance, specifically looking for configuration methods.
+
+### `inspect_pkg.py`
+**Purpose:** detailed inspection of installed packages and import paths related to the camera.
+**Usage:**
+```bash
+python inspect_pkg.py
+```
+**Checks:**
+- Lists all installed packages matching "picamera".
+- Attempts to import `picam2` and `picamera2` and reports results.

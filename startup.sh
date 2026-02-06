@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Configuration
-APP_DIR="/home/regie/PiSentry" # CHANGE THIS to your actual path
+# Get the directory where the script is located
+APP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 LOG_FILE="$APP_DIR/startup.log"
 
 # Function to log messages with timestamp
