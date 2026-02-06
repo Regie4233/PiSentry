@@ -64,16 +64,16 @@ Access the web interface at `http://<raspberry-pi-ip>:8888`.
 ### Auto-Start Service
 To enable the application to run automatically on boot (creating a hotspot if needed):
 
-1. **Install the Service**:
+1. **Run the Install Script**:
    ```bash
-   sudo cp pisentry.service /etc/systemd/system/
-   sudo systemctl daemon-reload
-   sudo systemctl enable pisentry.service
+   chmod +x install.sh
+   ./install.sh
    ```
+   Follow the prompts to confirm the installation. This script will generate a service file pointing to your current directory and user, then install and start it.
 
-2. **Start the Service**:
+2. **Check Status**:
    ```bash
-   sudo systemctl start pisentry.service
+   sudo systemctl status pisentry.service
    ```
 
 ## How It Works
