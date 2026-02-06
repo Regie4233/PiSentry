@@ -7,13 +7,11 @@ import pytz
 from config import Settings
 import threading
 
-# Try importing Picamera2, fallback to None if not available (e.g. Windows)
+# Try importing Picamera2
 try:
     from libcamera import controls
     from picamera2 import Picamera2, Picamera2Config
 
-    PICAMERA_AVAILABLE = True
-except ImportError:
     PICAMERA_AVAILABLE = True
 except ImportError as e:
     print(f"DEBUG: Failed to import Picamera2: {e}")
@@ -76,16 +74,15 @@ class CameraApp:
                 self.camera_error = f"Picamera Error: {e}"
                 self.log(f"CRITICAL: {e}")
                 self.camera = None
+                raise RuntimeError(
+                    f"Failed to initialize Picamera2: {e}"
+                )  # STRICT MODE: Crash if fails
         else:
-            # Fallback to Webcam
-            try:
-                self.log("Picamera not available. Attempting Webcam...")
-                self.camera = WebcamCamera()
-                self.log("Webcam initialized successfully")
-            except Exception as e:
-                self.log(f"Webcam failed: {e}. No camera available.")
-                self.camera = None
-                self.camera_error = f"No Camera Found: {e}"
+            # STRICT MODE: Do not fallback to webcam
+            self.log("CRITICAL: Picamera2 library not found or import failed.")
+            self.camera_error = "Picamera2 Library Missing"
+            self.camera = None
+            raise RuntimeError("Picamera2 library is not available. Please install it.")
 
         self.current_frame = None
         self.prev_frame_gray = None

@@ -21,7 +21,7 @@ After=network.target
 
 [Service]
 Type=simple
-User=$CURRENT_USER
+User=root
 WorkingDirectory=$APP_DIR
 ExecStart=/bin/bash $APP_DIR/startup.sh
 Restart=on-failure
@@ -61,8 +61,18 @@ sudo systemctl daemon-reload
 echo "Enabling service..."
 sudo systemctl enable pisentry.service
 
-echo "Starting service..."
-sudo systemctl start pisentry.service
+echo ""
+echo "WARNING: Starting the service now will switch to Hotspot mode (10.42.0.1) and DISCONNECT your current Wi-Fi/SSH session."
+read -p "Do you want to start the service now? (y/n) " -n 1 -r
+echo
+
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "Starting service..."
+    sudo systemctl start pisentry.service
+else
+    echo "Service installed and enabled. logic."
+    echo "Reboot or run 'sudo systemctl start pisentry' to begin."
+fi
 
 echo "Installation Complete!"
 echo "Check status with: sudo systemctl status pisentry.service"

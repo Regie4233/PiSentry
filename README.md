@@ -65,13 +65,25 @@ Access the web interface at `http://<raspberry-pi-ip>:8888`.
 To enable the application to run automatically on boot (creating a hotspot if needed):
 
 1. **Run the Install Script**:
+   > [!IMPORTANT]
+   > Do **NOT** run this script with `sudo`. The script needs to detect your non-root user enviornment. It will prompt for `sudo` permissions when specifically needed to install the service file.
+
    ```bash
    chmod +x install.sh
    ./install.sh
    ```
-   Follow the prompts to confirm the installation. This script will generate a service file pointing to your current directory and user, then install and start it.
+   Follow the prompts to confirm the installation. This script will:
+   - Generate a custom `pisentry.service` file running as **root** (required for hotspot creation).
+   - Install the service to `/etc/systemd/system/`.
+   - Enable the service to run on boot.
+   - Prompt you to start the service immediately.
 
-2. **Check Status**:
+   > [!WARNING]
+   > **Starting the service will switch the Pi to Hotspot Mode!**
+   > This means your current Wi-Fi connection (and SSH session) will look blocked.
+   > Connect to the new Hotspot SSID (IP: `10.42.0.1`) to access the device.
+
+2. **Check Status** (if not started immediately):
    ```bash
    sudo systemctl status pisentry.service
    ```

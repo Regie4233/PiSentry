@@ -10,41 +10,67 @@ else
     exit 1
 fi
 
+# Set defaults
+HOTSPOT_IP=${HOTSPOT_IP:-10.42.0.1}
+
 # Configuration checks
 if [ -z "$HOME_SSID" ] || [ -z "$HOME_PASS" ] || [ -z "$HOTSPOT_SSID" ] || [ -z "$HOTSPOT_PASS" ]; then
     echo "Error: Missing configuration variables in .env"
     exit 1
 fi
 
-# IMPROVED CHECK: Look for the specific profile name in the active connections list
-IS_HOTSPOT_ACTIVE=$(nmcli -t -f NAME connection show --active | grep -x "$HOTSPOT_SSID")
+# Function to check current active connection
+get_active_connection() {
+    sudo nmcli -t -f NAME connection show --active | head -n 1
+}
 
-# Check for "force" argument
-if [ "$1" == "force" ]; then
-    if [ "$IS_HOTSPOT_ACTIVE" = "$HOTSPOT_SSID" ]; then
-        echo "Hotspot is already active."
+CURRENT_CONNECTION=$(get_active_connection)
+
+enable_hotspot() {
+    echo "Enabling Hotspot ($HOTSPOT_SSID)..."
+    
+    # Check if the connection profile already exists
+    if sudo nmcli connection show "$HOTSPOT_SSID" >/dev/null 2>&1; then
+        echo "Connection profile '$HOTSPOT_SSID' exists. Bringing it up..."
     else
-        echo "Forcing Hotspot activation..."
-        # Clear the device
-        sudo nmcli device disconnect wlan0
-        # The 'name' flag ensures the PROFILE name matches the SSID for our check above
-        sudo nmcli device wifi hotspot ssid "$HOTSPOT_SSID" password "$HOTSPOT_PASS" name "$HOTSPOT_SSID"
-        echo "Hotspot is now active. SSH into 10.42.0.1"
+        echo "Creating new Hotspot connection profile..."
+        sudo nmcli connection add type wifi ifname wlan0 con-name "$HOTSPOT_SSID" autoconnect yes ssid "$HOTSPOT_SSID"
+        sudo nmcli connection modify "$HOTSPOT_SSID" 802-11-wireless.mode ap 802-11-wireless.band bg ipv4.method shared ipv4.addresses $HOTSPOT_IP/24 wifi-sec.key-mgmt wpa-psk wifi-sec.psk "$HOTSPOT_PASS"
     fi
+
+    # Bring up the connection
+    sudo nmcli connection up "$HOTSPOT_SSID"
+    
+    # Verify
+    if [ "$(get_active_connection)" == "$HOTSPOT_SSID" ]; then
+        echo "Hotspot active! IP: $HOTSPOT_IP" 
+        echo "Connect to SSID: $HOTSPOT_SSID"
+    else
+        echo "Error: Failed to activate hotspot."
+        exit 1
+    fi
+}
+
+enable_wifi() {
+    echo "Connecting to Home Wi-Fi ($HOME_SSID)..."
+    
+    # Bring down hotspot if active
+    sudo nmcli connection down "$HOTSPOT_SSID" >/dev/null 2>&1
+    
+    # Connect to Home Wi-Fi
+    sudo nmcli device wifi connect "$HOME_SSID" password "$HOME_PASS"
+}
+
+# Logic
+if [ "$1" == "force" ]; then
+    enable_hotspot
     exit 0
 fi
 
-if [ "$IS_HOTSPOT_ACTIVE" = "$HOTSPOT_SSID" ]; then
-    echo "Hotspot active. Switching to Home Wi-Fi ($HOME_SSID)..."
-    sudo nmcli connection down "$HOTSPOT_SSID"
-    # Wait 2 seconds for the radio to clear
-    sleep 2
-    sudo nmcli device wifi connect "$HOME_SSID" password "$HOME_PASS"
+if [ "$CURRENT_CONNECTION" == "$HOTSPOT_SSID" ]; then
+    echo "Currently in Hotspot mode. Switching to Client..."
+    enable_wifi
 else
-    echo "Switching from Home Wi-Fi to Hotspot ($HOTSPOT_SSID)..."
-    # Clear the device
-    sudo nmcli device disconnect wlan0
-    # The 'name' flag ensures the PROFILE name matches the SSID for our check above
-    sudo nmcli device wifi hotspot ssid "$HOTSPOT_SSID" password "$HOTSPOT_PASS" name "$HOTSPOT_SSID"
-    echo "Hotspot is now active. SSH into 10.42.0.1"
+    echo "Currently not in Hotspot mode. Switching to Hotspot..."
+    enable_hotspot
 fi
