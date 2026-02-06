@@ -1,0 +1,25 @@
+{
+    "motion_threshold": 20,
+    "grid_mask": [
+        65,
+        66,
+        67,
+        83,
+        82,
+        81,
+        97,
+        98,
+        99,
+        115,
+        113,
+        114,
+        129,
+        130,
+        131
+    ],
+    "time_lapse_duration": 10,
+    "time_between_snaps": 0.5,
+    "timezone": "US/Eastern",
+    "grid_rows": 12,
+    "grid_cols": 16
+}

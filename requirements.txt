@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+numpy
+opencv-python-headless
+Pillow
+pytz
+jinja2
+python-multipart
+# picamera2 # Uncomment on Pi

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pi Zero Surveillance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- Optional FontAwesome -->
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-eye"></i> Overwatch Zero</h1>
+            <div id="status-indicator" class="status-badge">
+                <span class="dot"></span> <span id="status-text">Connecting...</span>
+            </div>
+            <div class="controls">
+                <button id="start-btn" class="btn success"><i class="fas fa-play"></i> Start</button>
+                <button id="stop-btn" class="btn danger" style="display:none;"><i class="fas fa-stop"></i> Stop</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- DASHBOARD / CONFIG SECTION -->
+            <section class="card config-card">
+                <h2><i class="fas fa-cogs"></i> Configuration</h2>
+
+                <div class="config-grid">
+                    <div class="input-group">
+                        <label>Motion Threshold</label>
+                        <input type="number" id="motion_threshold" min="0" max="255">
+                    </div>
+                    <div class="input-group">
+                        <label>Time-lapse Duration (s)</label>
+                        <input type="number" id="time_lapse_duration" min="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Snap Interval (s)</label>
+                        <input type="number" id="time_between_snaps" min="0.1" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>Image Quality (%)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="range" id="image_quality" min="10" max="100" style="flex-grow: 1;">
+                            <span id="quality-val" style="width: 30px; text-align: right;">80</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Timezone</label>
+                        <input type="text" id="timezone">
+                    </div>
+                </div>
+
+                <div class="grid-section">
+                    <h3>Motion Detection Zones</h3>
+                    <p class="subtitle">Select areas to monitor. Green = Active.</p>
+                    <div id="grid-container"></div>
+                </div>
+
+                <button id="save-btn" class="btn primary">Save Configuration</button>
+            </section>
+
+            <!-- GALLERY SECTION -->
+            <section class="card gallery-card">
+                <div class="gallery-header">
+                    <h2><i class="fas fa-images"></i> Captures</h2>
+                    <div class="gallery-actions">
+                        <button id="download-btn" class="btn secondary">Download All (.zip)</button>
+                        <button id="delete-btn" class="btn danger">Delete All</button>
+                    </div>
+                </div>
+                <div id="gallery-grid" class="gallery-grid">
+                    <!-- Images injected here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- LIGHTBOX -->
+    <div id="lightbox" class="lightbox hidden">
+        <span class="close-lightbox">&times;</span>
+        <img class="lightbox-content" id="lightbox-img">
+        <div id="lightbox-caption"></div>
+    </div>
+
+    <!-- ERROR BANNER -->
+    <div id="error-banner" class="error-banner hidden">
+        <i class="fas fa-exclamation-triangle"></i> <span id="error-text">Error</span>
+    </div>
+
+    <!-- LOGS BUTTON (Floating) -->
+    <button id="logs-btn" class="logs-float-btn" title="View Logs"><i class="fas fa-terminal"></i></button>
+
+    <!-- LOGS MODAL -->
+    <div id="logs-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal" id="close-logs">&times;</span>
+            <h2>System Logs</h2>
+            <div id="logs-container" class="logs-container">Loading...</div>
+            <button id="refresh-logs" class="btn secondary">Refresh</button>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+
+</html>
